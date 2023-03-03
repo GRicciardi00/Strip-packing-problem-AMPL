@@ -28,11 +28,12 @@ subject to assegnazione_lunghezza{i in RETTANGOLI}:
 		lunghezza[i]= l[i]*(1-rotazione[i])+h[i]*rotazione[i];#OK
 subject to assegnazione_altezza{i in RETTANGOLI}:
 		altezza[i]=  h[i]*(1-rotazione[i])+l[i]*rotazione[i]; #OK
-subject to vincolo_adiacenza_sinistra{i in RETTANGOLI, j in RETTANGOLI: i!=j}: 
-		x[i]-x[j]+M_l*controllo_sinistra[i,j]<= M_l-lunghezza[i]; #OK
-subject to vincolo_adiacenza_basso{i in RETTANGOLI, j in RETTANGOLI: i!=j}: 
-		y[i]-y[j]+M_h*controllo_basso[i,j] <= M_h-altezza[i]; #OK
 subject to vincolo_lunghezza{i in RETTANGOLI}: 
 		x[i]+lunghezza[i]<= B; #OK
 subject to vincolo_altezza{i in RETTANGOLI}: 
 		y[i]+altezza[i]<= H;  #OK
+subject to vincolo_adiacenza_sinistra{i in RETTANGOLI, j in RETTANGOLI: i!=j}: 
+		x[i]-x[j]+M_l*controllo_sinistra[i,j]<= M_l-lunghezza[i]; #OK
+subject to vincolo_adiacenza_basso{i in RETTANGOLI, j in RETTANGOLI: i!=j}: 
+		y[i]-y[j]+M_h*controllo_basso[i,j] <= M_h-altezza[i]; #OK
+
