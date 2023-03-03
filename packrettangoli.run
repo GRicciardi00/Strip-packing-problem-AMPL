@@ -1,0 +1,11 @@
+reset;
+option solver gurobi;
+model packrettangoli.mod;
+data packrettangoli.dat;
+solve;
+
+printf "Minimum height: %g\n", obj;
+printf "Rectangle coordinates:\n";
+for{i in RETTANGOLI}{
+  printf "Rect %d: x=%g, y=%g, ruotato=%d\n", i, x[i], y[i], rotazione[i];
+}
