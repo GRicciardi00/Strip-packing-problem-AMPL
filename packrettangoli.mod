@@ -14,9 +14,9 @@ var x{RETTANGOLI} >= 0; #coordinata sull'asse delle x del rettangolo i-esimo del
 var y{RETTANGOLI} >= 0; #coordinata sull'asse delle y del rettangolo i-esimo del vertice in basso a sinistra
 var lunghezza{RETTANGOLI} >= 0; #assume valore l se rettangolo è posizionato in orizzontale altrimenti valore h.
 var altezza{RETTANGOLI} >= 0; #assume valore h se rettangolo è posizionato in orizzontale altrimenti valore w.
-var rotazione{RETTANGOLI} binary; #assume 0 se il rettangolo è posizionato in orizzontale, 1 se il rettangolo è posizionato in verticale (w ed h sono invertiti)
-var controllo_sinistra{RETTANGOLI,RETTANGOLI} binary; #assume 1 se è presente un rettangolo j alla sinistra del rettangolo i altrimenti 0.
-var controllo_basso{RETTANGOLI,RETTANGOLI} binary; #assume 1 se è presente un rettangolo j in basso al rettangolo i altrimenti 0.
+var rotazione{RETTANGOLI} binary; #assume 0 se il rettangolo è posizionato senza rotazioni, 1 se il rettangolo è ruotato di 90 gradi (w ed h sono invertiti)
+var controllo_sinistra{RETTANGOLI,RETTANGOLI} binary; #assume 1 se è presente un rettangolo i alla sinistra del rettangolo j altrimenti 0.
+var controllo_basso{RETTANGOLI,RETTANGOLI} binary; #assume 1 se è presente un rettangolo i in basso al rettangolo j altrimenti 0.
 
 #FUNZIONE OBIETTIVO -> minimizzare altezza contenitore
 minimize obj: H; 
