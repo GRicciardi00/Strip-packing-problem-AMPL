@@ -1,3 +1,5 @@
+#GIUSEPPE RICCIARDI, ANTONIO SIGNORELLI.
+#LAUREA MAGISTRALE INGEGNGERIA INFORMATICA, UNIVERSITA' DEGLI STUDI DI PARMA 2022/2023.
 
 #DATI
 set RETTANGOLI; #insieme dei rettangoli da inserire nel contenitore
@@ -5,8 +7,6 @@ param B;  #base del contenitore
 param N := card(RETTANGOLI); #numero di rettangoli
 param l{RETTANGOLI}; #lunghezza del rettangolo
 param h{RETTANGOLI}; #altezza del rettangolo
-param M_h = sum{i in RETTANGOLI} h[i]; #limite superiore esplicito altezza rettangolo
-param M_l = sum{i in RETTANGOLI} l[i]; #limite superiore esplicito lunghezza rettangolo
 
 #VARIABILI
 var H; #altezza del contenitore
@@ -14,26 +14,47 @@ var x{RETTANGOLI} >= 0; #coordinata sull'asse delle x del rettangolo i-esimo del
 var y{RETTANGOLI} >= 0; #coordinata sull'asse delle y del rettangolo i-esimo del vertice in basso a sinistra
 var lunghezza{RETTANGOLI} >= 0; #assume valore l se rettangolo è posizionato in orizzontale altrimenti valore h.
 var altezza{RETTANGOLI} >= 0; #assume valore h se rettangolo è posizionato in orizzontale altrimenti valore w.
-var rotazione{RETTANGOLI} binary; #assume 0 se il rettangolo è posizionato senza rotazioni, 1 se il rettangolo è ruotato di 90 gradi (w ed h sono invertiti)
-var controllo_sinistra{RETTANGOLI,RETTANGOLI} binary; #assume 1 se è presente un rettangolo i alla sinistra del rettangolo j altrimenti 0.
-var controllo_basso{RETTANGOLI,RETTANGOLI} binary; #assume 1 se è presente un rettangolo i in basso al rettangolo j altrimenti 0.
+var c_o{RETTANGOLI,RETTANGOLI} binary; #variabile binaria per controllo overlapping orizzontale, 1 se presente overlapping 0 altrimenti.
+var c_v{RETTANGOLI,RETTANGOLI} binary; #variabile binaria per controllo overlapping verticale, 1 se presente overlapping 0 altrimenti.
+var rotazione{RETTANGOLI} binary; #assume 0 se il rettangolo è posizionato in orizzontale, 1 se il rettangolo è posizionato in verticale (w ed h sono invertiti)
+
 
 #FUNZIONE OBIETTIVO -> minimizzare altezza contenitore
 minimize obj: H; 
 
 #VINCOLI
-subject to obbligo_adiacenza_dei_rettangoli {i in RETTANGOLI, j in RETTANGOLI: i<j}:
-		controllo_sinistra[i,j] +  controllo_sinistra[j,i] + controllo_basso[i,j] + controllo_basso[j,i]  >= 1; #OK
-subject to assegnazione_lunghezza{i in RETTANGOLI}:
-		lunghezza[i]= l[i]*(1-rotazione[i])+h[i]*rotazione[i];#OK
-subject to assegnazione_altezza{i in RETTANGOLI}:
-		altezza[i]=  h[i]*(1-rotazione[i])+l[i]*rotazione[i]; #OK
+#la lunghezza di un rettangolo posizionato non deve superare il valore B per restare nel contenitore
 subject to vincolo_lunghezza{i in RETTANGOLI}: 
 		x[i]+lunghezza[i]<= B; #OK
+
+#l'altezza di un rettangolo posizionato non deve superare il valore H per restare nel contenitore	
 subject to vincolo_altezza{i in RETTANGOLI}: 
 		y[i]+altezza[i]<= H;  #OK
-subject to vincolo_adiacenza_sinistra{i in RETTANGOLI, j in RETTANGOLI: i!=j}: 
-		x[i]-x[j]+M_l*controllo_sinistra[i,j]<= M_l-lunghezza[i]; #OK
-subject to vincolo_adiacenza_basso{i in RETTANGOLI, j in RETTANGOLI: i!=j}: 
-		y[i]-y[j]+M_h*controllo_basso[i,j] <= M_h-altezza[i]; #OK
+		
+#Se ruotato vale 1 allora lunghezza_i vale h_i
+subject to assegnazione_lunghezza{i in RETTANGOLI}:
+		lunghezza[i]= l[i]*(1-rotazione[i])+h[i]*rotazione[i];#OK
+	
+#Se ruotato vale 1 allora altezza_i vale l_i	
+subject to assegnazione_altezza{i in RETTANGOLI}:
+		altezza[i]=  h[i]*(1-rotazione[i])+l[i]*rotazione[i]; #OK
 
+#Rettangolo i si trova a sinistra al rettangolo j
+subject to vincolo_no_sovrap_sinistra{i in RETTANGOLI, j in RETTANGOLI: i<j}: 
+		x[i]+lunghezza[i] <= x[j]+ B * c_o[i,j]; #OK
+
+#Rettangolo i si trova a destra rispetto al rettangolo j		
+subject to vincolo_no_sovrap_destra{i in RETTANGOLI, j in RETTANGOLI: i<j}: 
+		x[j]+lunghezza[j] <= x[i]+ B * c_o[j,i]; #OK
+		
+#Rettangolo i si trova in basso rispetto al rettangolo j	
+subject to vincolo_no_sovrap_alto{i in RETTANGOLI, j in RETTANGOLI: i<j}: 
+		y[i]+altezza[i] <= y[j]+ H * c_v[i,j]; #OK
+
+#Rettangolo i si trova in alto rispetto al rettangolo j	
+subject to vincolo_no_sovrap_basso{i in RETTANGOLI, j in RETTANGOLI: i<j}: 
+		y[j]+altezza[j] <= y[i]+ H * c_v[j,i]; #OK
+		
+#almeno uno dei vincoli delle sovrapposizioni deve essere rispettato
+subject to vincolo_controllo_sovrap{i in RETTANGOLI, j in RETTANGOLI: i<j}:
+		c_o[i,j]+c_o[j,i]+c_v[i,j]+c_v[j,i] <= 3; #OK
